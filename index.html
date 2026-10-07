@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vértice, Estúdio de Desenvolvimento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────  TOKENS  ───────────────────────── */
+:root{
+  --bg:        #0a0a0a;
+  --bg-soft:   #101010;
+  --ink:       #ededed;
+  --ink-body:  #a1a1aa;
+  --ink-dim:   #71717a;
+  --ink-faint: #52525b;
+
+  --accent:    #22c55e;
+
+  --line:      rgba(255,255,255,.09);
+  --line-soft: rgba(255,255,255,.055);
+
+  --ease: cubic-bezier(.22,1,.36,1);
+  --measure: 760px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+
+body{
+  background:var(--bg);
+  color:var(--ink-body);
+  font-family:"Inter",-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px;
+  line-height:1.75;
+  font-weight:350;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+.wrap{ max-width:var(--measure); margin:0 auto; padding:0 32px; }
+
+section{ padding:96px 0; border-top:1px solid var(--line-soft); }
+
+/* ─────────────────────────  TIPOGRAFIA  ───────────────────────── */
+.eyebrow{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11px; font-weight:500; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ink-faint);
+  margin-bottom:28px;
+}
+
+h1{
+  font-size:clamp(32px,5.2vw,46px);
+  line-height:1.16; letter-spacing:-.032em; font-weight:500;
+  color:var(--ink); margin-bottom:26px;
+}
+h2{
+  font-size:clamp(22px,3vw,27px);
+  line-height:1.3; letter-spacing:-.025em; font-weight:500;
+  color:var(--ink); margin-bottom:20px;
+}
+h3{
+  font-size:17px; line-height:1.45; letter-spacing:-.015em;
+  font-weight:500; color:var(--ink);
+}
+p{ margin-bottom:20px; }
+p:last-child{ margin-bottom:0; }
+
+.lede{ font-size:18px; line-height:1.7; max-width:62ch; }
+strong{ color:var(--ink); font-weight:500; }
+
+a{ color:var(--ink); text-decoration:none; }
+
+/* ─────────────────────────  HEADER  ───────────────────────── */
+header{
+  position:sticky; top:0; z-index:40;
+  background:rgba(10,10,10,.82);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid transparent;
+  transition:border-color .35s var(--ease);
+}
+header.stuck{ border-bottom-color:var(--line-soft); }
+
+.bar{ display:flex; align-items:center; justify-content:space-between; gap:24px; height:64px; }
+
+.brand{ display:flex; align-items:baseline; gap:10px; }
+.brand b{ color:var(--ink); font-weight:500; font-size:15.5px; letter-spacing:-.02em; }
+.brand span{ font-size:12.5px; color:var(--ink-faint); }
+
+nav{ display:flex; align-items:center; gap:28px; }
+nav a{
+  font-size:13.5px; color:var(--ink-dim);
+  position:relative; padding:2px 0;
+  transition:color .3s var(--ease);
+}
+nav a::after{
+  content:""; position:absolute; left:0; right:0; bottom:-3px; height:1px;
+  background:currentColor; transform:scaleX(0); transform-origin:right;
+  transition:transform .4s var(--ease);
+}
+nav a:hover{ color:var(--ink); }
+nav a:hover::after{ transform:scaleX(1); transform-origin:left; }
+
+.status{ display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-dim); }
+.status i{
+  width:6px; height:6px; border-radius:50%; background:var(--accent);
+  box-shadow:0 0 0 3px rgba(34,197,94,.13);
+  animation:breathe 3.6s ease-in-out infinite;
+}
+@keyframes breathe{ 50%{ box-shadow:0 0 0 6px rgba(34,197,94,0); opacity:.7; } }
+
+/* ─────────────────────────  HERO  ───────────────────────── */
+.hero{ padding:112px 0 88px; }
+.hero h1 em{ font-style:normal; color:var(--ink-dim); }
+
+.hero-meta{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  margin-top:44px; padding-top:26px; border-top:1px solid var(--line-soft);
+  font-family:"JetBrains Mono",monospace; font-size:11.5px; letter-spacing:.1em;
+  color:var(--ink-faint); text-transform:uppercase;
+}
+.hero-meta .sep{ width:3px; height:3px; border-radius:50%; background:var(--ink-faint); }
+
+.links{ display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:34px; }
+.links a{
+  font-size:14.5px; color:var(--ink-body);
+  border-bottom:1px solid var(--line);
+  padding-bottom:3px; transition:color .3s, border-color .3s;
+}
+.links a:hover{ color:var(--ink); border-bottom-color:var(--accent); }
+
+/* ─────────────────────────  LINHAS DE PROJETO  ───────────────────────── */
+.row{
+  display:grid; grid-template-columns:168px 1fr; gap:26px;
+  padding:28px 0; border-top:1px solid var(--line-soft);
+  text-decoration:none; position:relative;
+  transition:padding-left .45s var(--ease);
+}
+.row:first-of-type{ border-top:1px solid var(--line); }
+.row::before{
+  content:""; position:absolute; left:0; top:-1px; height:1px; width:0;
+  background:var(--accent); transition:width .6s var(--ease);
+}
+.row:hover{ padding-left:12px; }
+.row:hover::before{ width:100%; }
+
+.thumb{
+  position:relative; aspect-ratio:16/10; overflow:hidden;
+  border:1px solid var(--line); border-radius:6px; background:var(--bg-soft);
+  filter:grayscale(1) contrast(1.06) brightness(.9);
+  transition:filter .5s var(--ease), border-color .4s var(--ease);
+}
+.thumb svg{ display:block; width:100%; height:100%; }
+.row:hover .thumb{ filter:grayscale(.55) contrast(1.08) brightness(1.02); border-color:rgba(255,255,255,.2); }
+.thumb::after{
+  content:""; position:absolute; inset:0;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+  pointer-events:none;
+}
+
+.row-t{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+.row-head{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; }
+.row-head h3{ transition:color .3s var(--ease); }
+.row:hover .row-head h3{ color:#fff; }
+.arrow{
+  display:inline-block; margin-left:8px; color:var(--accent);
+  opacity:0; transform:translateX(-6px);
+  transition:opacity .35s var(--ease), transform .35s var(--ease);
+}
+.row:hover .arrow{ opacity:1; transform:translateX(0); }
+.row-t p{ font-size:15px; margin:0; max-width:48ch; }
+
+.row-meta{
+  display:flex; align-items:center; gap:10px;
+  font-family:"JetBrains Mono",monospace; font-size:11px;
+  letter-spacing:.1em; color:var(--ink-faint); text-transform:uppercase;
+}
+.tag{
+  display:inline-block; padding:2px 8px; border:1px solid var(--line);
+  border-radius:4px; font-size:10.5px; color:var(--ink-dim); letter-spacing:.06em;
+}
+
+/* ─────────────────────────  SOBRE  ───────────────────────── */
+.about{ display:grid; grid-template-columns:auto 1fr; gap:32px; align-items:start; }
+.avatar{
+  width:76px; height:76px; border-radius:50%;
+  object-fit:cover; filter:grayscale(1) contrast(1.04) brightness(.96);
+  border:1px solid var(--line);
+}
+.logo{
+  width:76px; height:76px; display:grid; place-items:center;
+  border:1px solid var(--line); border-radius:6px; background:var(--bg-soft);
+  color:var(--ink-body);
+  transition:color .45s var(--ease), border-color .45s var(--ease);
+}
+.logo svg{ width:56%; height:56%; display:block; }
+.logo:hover{ color:var(--ink); border-color:var(--accent); }
+.about-body p{ font-size:16.5px; }
+
+dl{ display:grid; grid-template-columns:168px 1fr; gap:0; margin-top:8px; }
+dt,dd{ padding:14px 0; border-top:1px solid var(--line-soft); margin:0; }
+dt{
+  font-family:"JetBrains Mono",monospace; font-size:11.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-faint); padding-right:20px;
+}
+dd{ font-size:15px; }
+dd .sep{ color:var(--ink-faint); padding:0 7px; }
+
+/* ─────────────────────────  CONTATO  ───────────────────────── */
+.contact{ padding-bottom:104px; }
+
+.copy{
+  display:inline-flex; align-items:center; gap:9px;
+  font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-dim);
+  background:none; border:1px solid var(--line); border-radius:5px;
+  padding:7px 12px; cursor:pointer; margin-top:28px;
+  transition:color .3s, border-color .3s, background .3s;
+}
+.copy:hover{ color:var(--ink); border-color:var(--ink-faint); background:rgba(255,255,255,.03); }
+.copy.ok{ color:var(--accent); border-color:rgba(34,197,94,.35); }
+.copy i{ width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+footer{
+  border-top:1px solid var(--line-soft); padding:28px 0 56px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:14px;
+  font-family:"JetBrains Mono",monospace; font-size:11px;
+  letter-spacing:.08em; color:var(--ink-faint);
+}
+footer nav{ gap:22px; }
+footer nav a{ font-family:"Inter",sans-serif; font-size:12.5px; }
+
+/* ─────────────────────────  BARRA DE PROGRESSO  ───────────────────────── */
+.progress{
+  position:fixed; top:0; left:0; height:1px; width:100%;
+  background:var(--accent); transform:scaleX(0); transform-origin:left;
+  z-index:60; opacity:.55;
+}
+
+/* ─────────────────────────  REVEAL  ───────────────────────── */
+.js .rv{ opacity:0; transform:translateY(10px); }
+.js .rv.in{ opacity:1; transform:none;
+  transition:opacity .8s var(--ease), transform .8s var(--ease); }
+
+/* ─────────────────────────  RESPONSIVO  ───────────────────────── */
+@media (max-width:700px){
+  .wrap{ padding:0 20px; }
+  section{ padding:72px 0; }
+  .hero{ padding:80px 0 64px; }
+  nav{ display:none; }
+  .about{ grid-template-columns:1fr; gap:20px; }
+  .avatar,.logo{ width:60px; height:60px; }
+  dl{ grid-template-columns:1fr; }
+  dt{ padding-bottom:0; border-bottom:none; }
+  dd{ padding-top:6px; }
+  .row{ grid-template-columns:1fr; gap:18px; padding:24px 0; }
+  .thumb{ max-width:280px; }
+  .row:hover{ padding-left:0; }
+}
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none !important; transition-duration:.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="bar"></div>
+
+<header id="hdr">
+  <div class="wrap bar">
+    <a class="brand" href="#top">
+      <b>Vértice</b>
+      <span>Estúdio de desenvolvimento</span>
+    </a>
+    <nav>
+      <a href="#work">Projetos</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <span class="status"><i></i>Disponível</span>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ═════════  HERO  ═════════ -->
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow rv">Portfólio, 2026</div>
+      <h1 class="rv">Aplicações web sob medida,<br>do banco ao <em>deploy.</em></h1>
+      <p class="lede rv">Aplicações web sob medida para clientes que precisam de velocidade de
+        entrega e de um código que continua funcionando seis meses depois. O serviço cobre
+        banco de dados, interface e publicação.</p>
+      <p class="rv">A stack é TypeScript, React, SQL e Tailwind. Menos camadas entre o
+        requisito e o código, e mais controle sobre o que vai para produção.</p>
+      <div class="links rv">
+        <a href="#work">Projetos</a>
+        <a href="#sobre">Perfil profissional</a>
+        <a href="mailto:contato@vertice.studio">contato@vertice.studio</a>
+      </div>
+      <div class="hero-meta rv">
+        <span>Ceará e Sergipe</span><i class="sep"></i>
+        <span>Duas pessoas</span><i class="sep"></i>
+        <span>Remoto</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═════════  PROJETOS  ═════════ -->
+  <div class="wrap" id="work">
+    <section>
+      <div class="eyebrow rv">01 Projetos</div>
+      <h2 class="rv">Três projetos entregues<br>para clientes.</h2>
+
+      <p class="lede rv" style="margin-bottom:44px">Projetos sob encomenda, com escopo fechado e prazo
+        acordado. Acordos de confidencialidade impedem a exibição de nomes e telas reais,
+        então cada caso abaixo descreve o problema e a solução.</p>
+
+      <div>
+
+        <!-- 001 -->
+        <a class="row rv" href="#">
+          <div class="thumb">
+            <svg viewBox="0 0 168 105" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Prévia do painel de vendas">
+              <rect width="168" height="105" fill="#101012"/>
+              <rect x="0" y="0" width="30" height="105" fill="#151518"/>
+              <rect x="9" y="11" width="14" height="3" rx="1.5" fill="#3f3f46"/>
+              <rect x="9" y="22" width="18" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="9" y="31" width="16" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="9" y="40" width="19" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="38" y="10" width="34" height="3" rx="1.5" fill="#3f3f46"/>
+              <rect x="38" y="21" width="122" height="14" rx="2" fill="#17171a" stroke="#26262b"/>
+              <rect x="43" y="26" width="22" height="4" rx="2" fill="#52525b"/>
+              <rect x="130" y="26" width="12" height="4" rx="2" fill="#3f3f46"/>
+              <rect x="38" y="42" width="122" height="30" rx="2" fill="#17171a" stroke="#26262b"/>
+              <polyline points="42,66 56,60 70,63 84,53 98,57 112,49 126,52 140,45 156,47"
+                        fill="none" stroke="#71717a" stroke-width="1.6" stroke-linejoin="round"/>
+              <circle cx="126" cy="52" r="2.4" fill="#a1a1aa"/>
+              <rect x="38" y="79" width="38" height="16" rx="2" fill="#17171a" stroke="#26262b"/>
+              <rect x="80" y="79" width="38" height="16" rx="2" fill="#17171a" stroke="#26262b"/>
+              <rect x="122" y="79" width="38" height="16" rx="2" fill="#17171a" stroke="#26262b"/>
+              <rect x="43" y="85" width="16" height="2.5" rx="1.25" fill="#52525b"/>
+              <rect x="85" y="85" width="13" height="2.5" rx="1.25" fill="#3f3f46"/>
+              <rect x="127" y="85" width="20" height="2.5" rx="1.25" fill="#3f3f46"/>
+            </svg>
+          </div>
+          <div class="row-t">
+            <div class="row-head">
+              <h3>Painel de vendas<span class="arrow">↗</span></h3>
+            </div>
+            <p>Painel interno para acompanhar pedidos, estoque e faturamento de um pequeno
+              varejo. Leitura do banco direto na tela, sem recarregar a página inteira.
+              Incluiu a migração do banco antigo e a aplicação completa.</p>
+            <div class="row-meta"><span>2026</span><span class="tag">React</span><span class="tag">SQL</span><span class="tag">Painel</span></div>
+          </div>
+        </a>
+
+        <!-- 002 -->
+        <a class="row rv" href="#">
+          <div class="thumb">
+            <svg viewBox="0 0 168 105" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Prévia da vitrine online">
+              <rect width="168" height="105" fill="#101012"/>
+              <rect x="0" y="0" width="168" height="16" fill="#151518"/>
+              <circle cx="11" cy="8" r="2" fill="#3f3f46"/>
+              <circle cx="19" cy="8" r="2" fill="#27272a"/>
+              <rect x="38" y="6" width="44" height="4" rx="2" fill="#141416" stroke="#26262b"/>
+              <rect x="120" y="5" width="38" height="6" rx="3" fill="#1c1c20" stroke="#26262b"/>
+              <rect x="10" y="22" width="34" height="5" rx="2.5" fill="#3f3f46"/>
+              <rect x="10" y="32" width="52" height="3" rx="1.5" fill="#27272a"/>
+              <g stroke="#26262b" fill="#17171a">
+                <rect x="10" y="42" width="46" height="30" rx="3"/>
+                <rect x="61" y="42" width="46" height="30" rx="3"/>
+                <rect x="112" y="42" width="46" height="30" rx="3"/>
+                <rect x="10" y="77" width="46" height="18" rx="3"/>
+                <rect x="61" y="77" width="46" height="18" rx="3"/>
+                <rect x="112" y="77" width="46" height="18" rx="3"/>
+              </g>
+              <path d="M18 64l11-9 9 7 8-6 8 8z" fill="#3f3f46"/>
+              <circle cx="34" cy="50" r="3.5" fill="#52525b"/>
+              <rect x="18" y="72" width="26" height="3" rx="1.5" fill="#3f3f46"/>
+              <rect x="18" y="83" width="20" height="3" rx="1.5" fill="#3f3f46"/>
+              <rect x="18" y="89" width="13" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="69" y="55" width="30" height="3" rx="1.5" fill="#52525b"/>
+              <rect x="69" y="63" width="22" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="69" y="83" width="18" height="3" rx="1.5" fill="#52525b"/>
+              <rect x="120" y="55" width="30" height="3" rx="1.5" fill="#52525b"/>
+              <rect x="120" y="63" width="20" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="154" y="84" width="4" height="4" rx="2" fill="#22c55e" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="row-t">
+            <div class="row-head">
+              <h3>Loja online<span class="arrow">↗</span></h3>
+            </div>
+            <p>Vitrine com catálogo, carrinho e pagamento para um cliente que vendia pelo Instagram.
+              Front, consulta dos produtos no banco e configuração do checkout. No ar em
+              três semanas.</p>
+            <div class="row-meta"><span>2025</span><span class="tag">React</span><span class="tag">SQL</span><span class="tag">Tailwind</span></div>
+          </div>
+        </a>
+
+        <!-- 003 -->
+        <a class="row rv" href="#">
+          <div class="thumb">
+            <svg viewBox="0 0 168 105" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Prévia do formulário de agendamento">
+              <rect width="168" height="105" fill="#101012"/>
+              <rect x="10" y="10" width="98" height="85" rx="3" fill="#17171a" stroke="#26262b"/>
+              <rect x="20" y="20" width="46" height="4" rx="2" fill="#3f3f46"/>
+              <rect x="20" y="29" width="62" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="20" y="40" width="30" height="2.5" rx="1.25" fill="#3f3f46"/>
+              <rect x="20" y="47" width="78" height="11" rx="2.5" fill="#141416" stroke="#26262b"/>
+              <rect x="20" y="64" width="30" height="2.5" rx="1.25" fill="#3f3f46"/>
+              <rect x="20" y="71" width="78" height="11" rx="2.5" fill="#141416" stroke="#26262b"/>
+              <rect x="20" y="86" width="52" height="12" rx="3" fill="#3f3f46"/>
+              <rect x="118" y="10" width="40" height="38" rx="3" fill="#1c1c20" stroke="#26262b"/>
+              <circle cx="130" cy="24" r="4" fill="#52525b"/>
+              <rect x="138" y="21" width="14" height="2.5" rx="1.25" fill="#3f3f46"/>
+              <rect x="138" y="27" width="10" height="2" rx="1" fill="#27272a"/>
+              <rect x="124" y="36" width="28" height="3" rx="1.5" fill="#27272a"/>
+              <rect x="118" y="54" width="40" height="41" rx="3" fill="#1c1c20" stroke="#26262b"/>
+              <rect x="124" y="60" width="28" height="3" rx="1.5" fill="#3f3f46"/>
+              <rect x="124" y="68" width="20" height="2" rx="1" fill="#27272a"/>
+              <rect x="124" y="76" width="28" height="2.5" rx="1.25" fill="#27272a"/>
+              <rect x="124" y="85" width="16" height="5" rx="2.5" fill="#3f3f46"/>
+              <circle cx="154" cy="87" r="2.5" fill="#22c55e" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="row-t">
+            <div class="row-head">
+              <h3>Agendamento<span class="arrow">↗</span></h3>
+            </div>
+            <p>Sistema de agendamento para uma clínica. O paciente escolhe o profissional e o horário
+              disponível, e a agenda se atualiza sozinha. Validação no banco impede reserva
+              duplicada no mesmo horário.</p>
+            <div class="row-meta"><span>2025</span><span class="tag">React</span><span class="tag">SQL</span><span class="tag">TypeScript</span></div>
+          </div>
+        </a>
+
+        
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ═════════  SOBRE  ═════════ -->
+  <div class="wrap" id="sobre">
+    <section>
+      <div class="eyebrow rv">02 Sobre mim</div>
+      <h2 class="rv">Como trabalhamos.</h2>
+
+      <div class="about" style="margin-top:40px">
+        <div class="logo rv" role="img" aria-label="Marca Vértice">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 8 L50 92" stroke="currentColor" stroke-width="2" opacity=".28"/>
+            <path d="M12 54 L88 54" stroke="currentColor" stroke-width="2" opacity=".28"/>
+            <path d="M50 8 L86 78 L14 78 Z" stroke="currentColor" stroke-width="4"
+                  stroke-linejoin="round"/>
+            <circle cx="50" cy="54" r="5.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="about-body rv">
+          <p>Vértice é um estúdio de duas pessoas, com uma pessoa no Ceará e outra em Sergipe,
+            trabalhando de forma remota. Aplicações web do começo ao fim. Conversam com
+            o cliente, escrevem o código, sobem em produção e explicam o que ficou pronto.</p>
+          <p>Cada uma toca todas as etapas, do banco ao deploy. Isso serve a projetos
+            pequenos, onde o time é curto e ninguém pode passar a bola.
+            <strong>Menos camadas</strong> entre o que foi pedido e o que foi entregue.</p>
+        </div>
+      </div>
+
+      <dl class="rv" style="margin-top:48px">
+        <dt>Base</dt>
+        <dd>Ceará<span class="sep">/</span>Sergipe, Brasil (GMT−3)</dd>
+
+        <dt>Modelo de trabalho</dt>
+        <dd>Projetos com escopo e prazo definidos</dd>
+
+        <dt>Tecnologias</dt>
+        <dd>TypeScript<span class="sep">/</span>React<span class="sep">/</span>SQL<span class="sep">/</span>Tailwind</dd>
+
+        <dt>Também fazem</dt>
+        <dd>Modelagem de banco<span class="sep">/</span>Integração de API<span class="sep">/</span>Deploy e infraestrutura</dd>
+
+        <dt>Disponibilidade</dt>
+        <dd>Projetos abertos para o primeiro trimestre de 2026</dd>
+      </dl>
+    </section>
+  </div>
+
+  <!-- ═════════  CONTATO  ═════════ -->
+  <div class="wrap" id="contato">
+    <section class="contact">
+      <div class="eyebrow rv">03 Contato</div>
+      <h2 class="rv">Vamos avaliar<br>o seu projeto.</h2>
+      <p class="lede rv">A resposta chega em até 24 horas úteis. Descreva o problema e o que já existe.
+        O retorno traz uma avaliação de escopo, prazo e valor.</p>
+      <div class="links rv">
+        <a href="mailto:contato@vertice.studio">contato@vertice.studio</a>
+      </div>
+      <button class="copy rv" id="copy" data-mail="contato@vertice.studio">
+        <i></i><span>Copiar endereço</span>
+      </button>
+    </section>
+
+    <footer>
+      <span>© 2026 Vértice</span>
+      <nav>
+        <a href="#">GitHub</a>
+        <a href="#">RSS</a>
+      </nav>
+    </footer>
+  </div>
+</main>
+
+<script>
+document.documentElement.classList.add('js');
+
+/* ── header fixo + barra de progresso ── */
+const hdr = document.getElementById('hdr');
+const bar = document.getElementById('bar');
+addEventListener('scroll', () => {
+  const y = scrollY;
+  hdr.classList.toggle('stuck', y > 8);
+  const max = document.documentElement.scrollHeight - innerHeight;
+  bar.style.transform = `scaleX(${max > 0 ? Math.min(y / max, 1) : 0})`;
+}, { passive: true });
+
+/* ── copiar e-mail ── */
+const btn = document.getElementById('copy');
+btn.addEventListener('click', async () => {
+  const label = btn.querySelector('span');
+  try {
+    await navigator.clipboard.writeText(btn.dataset.mail);
+    label.textContent = 'Copiado';
+  } catch {
+    label.textContent = btn.dataset.mail;
+  }
+  btn.classList.add('ok');
+  setTimeout(() => { label.textContent = 'Copiar endereço'; btn.classList.remove('ok'); }, 2200);
+});
+
+/* ── revelação ao rolar ── */
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.rv').forEach((el) => io.observe(el));
+} else {
+  document.querySelectorAll('.rv').forEach((el) => el.classList.add('in'));
+}
+</script>
+</body>
+</html>
