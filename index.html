@@ -88,11 +88,9 @@ header.stuck{ border-bottom-color:var(--line-soft); }
 
 .bar{ display:flex; align-items:center; justify-content:space-between; gap:24px; height:64px; }
 
-.brand{ display:flex; align-items:center; gap:10px; }
-.brand-icon{ width:28px; height:28px; flex-shrink:0; color:var(--ink-body); transition:color .3s var(--ease); }
+.brand{ display:flex; align-items:center; }
+.brand-icon{ width:32px; height:32px; flex-shrink:0; color:var(--ink-body); transition:color .3s var(--ease); }
 .brand:hover .brand-icon{ color:var(--ink); }
-.brand b{ color:var(--ink); font-weight:500; font-size:15.5px; letter-spacing:-.02em; }
-.brand span{ font-size:12.5px; color:var(--ink-faint); }
 
 nav{ display:flex; align-items:center; gap:28px; }
 nav a{
@@ -276,10 +274,8 @@ footer nav a{ font-family:"Inter",sans-serif; font-size:12.5px; }
 
 <header id="hdr">
   <div class="wrap bar">
-    <a class="brand" href="#top">
+    <a class="brand" href="#top" aria-label="Vértice, página inicial">
       <svg class="brand-icon" viewBox="0 0 100 100" aria-hidden="true"><path d="M30 18 A30 30 0 0 1 70 18 A16 16 0 0 0 30 18 Z" fill="currentColor"/></svg>
-      <b>Vértice</b>
-      <span>Estúdio de desenvolvimento</span>
     </a>
     <nav>
       <a href="#work">Projetos</a>
